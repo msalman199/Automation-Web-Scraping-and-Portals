@@ -101,4 +101,15 @@ def handle_captcha(self, url):
     # 3. Retry with different headers
     # 4. Log CAPTCHA encounter for monitoring
     pass
+def scrape_page(self, url):
+    """Scrape a webpage with CAPTCHA handling."""
+    response = self.fetch_with_retry(url)
+    
+    if response is None:
+        return {"error": "Failed to fetch page"}
+    
+    # TODO: Check if CAPTCHA detected using detect_captcha()
+    # If CAPTCHA found, call handle_captcha()
+    # Parse and return data only if no CAPTCHA or after handling
+    pass
 
