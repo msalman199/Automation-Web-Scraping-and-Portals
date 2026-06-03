@@ -1,0 +1,419 @@
+Payment Portal Reconciliation
+Prerequisites
+Basic Python programming knowledge (functions, loops, dictionaries)
+Familiarity with CSV file handling
+Understanding of command-line operations in Linux
+Basic knowledge of data structures and comparison logic
+Learning Objectives
+By completing this lab, you will:
+
+Automate transaction reconciliation between payment systems
+Parse and normalize transaction records from multiple sources
+Implement matching algorithms to identify discrepancies
+Generate comprehensive reconciliation reports
+Handle edge cases in financial data processing
+Environment Setup
+Step 1: Start Your Lab Environment
+Click the Start Lab button to provision your Linux machine. Once ready, connect via SSH.
+
+Step 2: Install Required Tools
+# Update package manager
+sudo apt update
+
+# Install Python 3 and pip
+sudo apt install -y python3 python3-pip
+
+# Install required Python libraries
+pip3 install pandas tabulate
+Step 3: Create Project Directory
+mkdir ~/payment-reconciliation
+cd ~/payment-reconciliation
+Task 1: Parse Transaction Records
+Step 1: Create Sample Transaction Data
+Create two CSV files representing transactions from different sources.
+
+Portal transactions (portal_transactions.csv):
+
+cat > portal_transactions.csv << 'EOF'
+transaction_id,date,amount,customer_id,status,payment_method
+TXN001,2024-01-15,150.00,CUST101,completed,credit_card
+TXN002,2024-01-15,75.50,CUST102,completed,paypal
+TXN003,2024-01-16,200.00,CUST103,completed,debit_card
+TXN004,2024-01-16,89.99,CUST104,completed,credit_card
+TXN005,2024-01-17,125.00,CUST105,failed,paypal
+TXN006,2024-01-17,300.00,CUST106,completed,credit_card
+EOF
+Bank transactions (bank_transactions.csv):
+
+cat > bank_transactions.csv << 'EOF'
+reference,transaction_date,settled_amount,account_ref,payment_type
+TXN001,2024-01-15,150.00,CUST101,CC
+TXN002,2024-01-15,75.50,CUST102,PP
+TXN003,2024-01-16,200.00,CUST103,DC
+TXN004,2024-01-16,88.99,CUST104,CC
+TXN006,2024-01-17,300.00,CUST106,CC
+TXN007,2024-01-18,450.00,CUST107,CC
+EOF
+Step 2: Create Transaction Parser Module
+Create transaction_parser.py:
+
+import pandas as pd
+from typing import Dict, List
+
+class TransactionParser:
+    """
+    Parse and normalize transaction records from different sources.
+    """
+    
+    def __init__(self):
+        self.portal_data = None
+        self.bank_data = None
+    
+    def load_portal_transactions(self, filepath: str) -> pd.DataFrame:
+        """
+        Load and normalize portal transaction data.
+        
+        Args:
+            filepath: Path to portal transactions CSV
+            
+        Returns:
+            Normalized DataFrame with standard column names
+        """
+        # TODO: Read CSV file using pandas
+        # TODO: Filter only 'completed' status transactions
+        # TODO: Rename columns to standard format (id, date, amount, customer)
+        # TODO: Convert amount to float
+        # TODO: Return normalized DataFrame
+        pass
+    
+    def load_bank_transactions(self, filepath: str) -> pd.DataFrame:
+        """
+        Load and normalize bank transaction data.
+        
+        Args:
+            filepath: Path to bank transactions CSV
+            
+        Returns:
+            Normalized DataFrame with standard column names
+        """
+        # TODO: Read CSV file using pandas
+        # TODO: Rename columns to match portal format
+        # TODO: Convert amount to float
+        # TODO: Return normalized DataFrame
+        pass
+    
+    def get_transaction_summary(self, df: pd.DataFrame) -> Dict:
+        """
+        Generate summary statistics for transactions.
+        
+        Args:
+            df: Transaction DataFrame
+            
+        Returns:
+            Dictionary with count, total_amount, avg_amount
+        """
+        # TODO: Calculate total count of transactions
+        # TODO: Calculate sum of all amounts
+        # TODO: Calculate average amount
+        # TODO: Return dictionary with statistics
+        pass
+Step 3: Implement the Parser
+Complete the TransactionParser class methods. Key hints:
+
+Use pd.read_csv() to load files
+Filter DataFrames using boolean indexing: df[df['status'] == 'completed']
+Rename columns: df.rename(columns={'old_name': 'new_name'})
+Convert types: df['amount'].astype(float)
+Task 2: Match Entries and Identify Discrepancies
+Step 1: Create Reconciliation Engine
+Create reconciliation_engine.py:
+
+import pandas as pd
+from typing import Tuple, List, Dict
+
+class ReconciliationEngine:
+    """
+    Match transactions between portal and bank records.
+    """
+    
+    def __init__(self, portal_df: pd.DataFrame, bank_df: pd.DataFrame):
+        self.portal_df = portal_df
+        self.bank_df = bank_df
+        self.matched = []
+        self.unmatched_portal = []
+        self.unmatched_bank = []
+        self.discrepancies = []
+    
+    def find_exact_matches(self) -> List[Dict]:
+        """
+        Find transactions that match exactly on ID and amount.
+        
+        Returns:
+            List of matched transaction dictionaries
+        """
+        # TODO: Merge DataFrames on transaction ID
+        # TODO: Compare amounts (consider floating point precision)
+        # TODO: Identify exact matches where amounts are equal
+        # TODO: Store matched records
+        # TODO: Return list of matches
+        pass
+    
+    def find_amount_discrepancies(self, tolerance: float = 0.01) -> List[Dict]:
+        """
+        Find transactions with matching IDs but different amounts.
+        
+        Args:
+            tolerance: Acceptable difference threshold
+            
+        Returns:
+            List of discrepancy dictionaries with both amounts
+        """
+        # TODO: Merge DataFrames on transaction ID
+        # TODO: Find records where amounts differ by more than tolerance
+        # TODO: Create discrepancy records with portal_amount and bank_amount
+        # TODO: Return list of discrepancies
+        pass
+    
+    def find_unmatched_transactions(self) -> Tuple[List[str], List[str]]:
+        """
+        Identify transactions present in only one source.
+        
+        Returns:
+            Tuple of (portal_only_ids, bank_only_ids)
+        """
+        # TODO: Get set of portal transaction IDs
+        # TODO: Get set of bank transaction IDs
+        # TODO: Find IDs in portal but not in bank
+        # TODO: Find IDs in bank but not in portal
+        # TODO: Return both lists as tuple
+        pass
+    
+    def reconcile(self) -> Dict:
+        """
+        Perform complete reconciliation process.
+        
+        Returns:
+            Dictionary with all reconciliation results
+        """
+        # TODO: Call find_exact_matches()
+        # TODO: Call find_amount_discrepancies()
+        # TODO: Call find_unmatched_transactions()
+        # TODO: Compile results into summary dictionary
+        # TODO: Return complete reconciliation report
+        pass
+Step 2: Implement Matching Logic
+Key implementation hints:
+
+Use pd.merge() for joining DataFrames: pd.merge(df1, df2, on='id', how='inner')
+Compare amounts with tolerance: abs(amount1 - amount2) > tolerance
+Find set differences: set(portal_ids) - set(bank_ids)
+Use .tolist() to convert pandas Series to lists
+Task 3: Generate Reconciliation Report
+Step 1: Create Report Generator
+Create report_generator.py:
+
+from tabulate import tabulate
+from datetime import datetime
+from typing import Dict, List
+
+class ReportGenerator:
+    """
+    Generate formatted reconciliation reports.
+    """
+    
+    def __init__(self, reconciliation_results: Dict):
+        self.results = reconciliation_results
+        self.report_lines = []
+    
+    def generate_summary_section(self) -> str:
+        """
+        Create summary statistics section.
+        
+        Returns:
+            Formatted summary string
+        """
+        # TODO: Extract counts from results
+        # TODO: Calculate reconciliation rate
+        # TODO: Format summary with counts and percentages
+        # TODO: Return formatted string
+        pass
+    
+    def generate_discrepancy_table(self) -> str:
+        """
+        Create table of amount discrepancies.
+        
+        Returns:
+            Formatted table string
+        """
+        # TODO: Extract discrepancy records
+        # TODO: Create table data with ID, portal amount, bank amount, difference
+        # TODO: Use tabulate to format as grid table
+        # TODO: Return formatted table
+        pass
+    
+    def generate_unmatched_section(self) -> str:
+        """
+        Create section listing unmatched transactions.
+        
+        Returns:
+            Formatted unmatched transactions string
+        """
+        # TODO: Extract unmatched portal transactions
+        # TODO: Extract unmatched bank transactions
+        # TODO: Format both lists with headers
+        # TODO: Return formatted section
+        pass
+    
+    def save_report(self, filename: str) -> None:
+        """
+        Save complete report to file.
+        
+        Args:
+            filename: Output file path
+        """
+        # TODO: Generate header with timestamp
+        # TODO: Call all section generators
+        # TODO: Combine all sections
+        # TODO: Write to file
+        pass
+Step 2: Create Main Execution Script
+Create reconcile.py:
+
+#!/usr/bin/env python3
+
+from transaction_parser import TransactionParser
+from reconciliation_engine import ReconciliationEngine
+from report_generator import ReportGenerator
+
+def main():
+    """
+    Main reconciliation workflow.
+    """
+    print("Starting Payment Portal Reconciliation...")
+    
+    # TODO: Initialize TransactionParser
+    # TODO: Load portal transactions from 'portal_transactions.csv'
+    # TODO: Load bank transactions from 'bank_transactions.csv'
+    # TODO: Print summary of loaded data
+    
+    # TODO: Initialize ReconciliationEngine with both DataFrames
+    # TODO: Run reconciliation process
+    # TODO: Print reconciliation summary
+    
+    # TODO: Initialize ReportGenerator with results
+    # TODO: Save report to 'reconciliation_report.txt'
+    # TODO: Print completion message
+    
+if __name__ == "__main__":
+    main()
+Step 3: Run Reconciliation
+# Make script executable
+chmod +x reconcile.py
+
+# Execute reconciliation
+python3 reconcile.py
+Verification
+Step 1: Check Report Generation
+# View generated report
+cat reconciliation_report.txt
+Expected output should include:
+
+Summary with matched/unmatched counts
+Table showing TXN004 amount discrepancy (89.99 vs 88.99)
+TXN005 listed as portal-only (failed status)
+TXN007 listed as bank-only
+Step 2: Verify Discrepancy Detection
+# Test with Python interactive mode
+python3 << 'EOF'
+from transaction_parser import TransactionParser
+from reconciliation_engine import ReconciliationEngine
+
+parser = TransactionParser()
+portal = parser.load_portal_transactions('portal_transactions.csv')
+bank = parser.load_bank_transactions('bank_transactions.csv')
+
+engine = ReconciliationEngine(portal, bank)
+results = engine.reconcile()
+
+print(f"Matched: {len(results['matched'])}")
+print(f"Discrepancies: {len(results['discrepancies'])}")
+print(f"Portal only: {len(results['unmatched_portal'])}")
+print(f"Bank only: {len(results['unmatched_bank'])}")
+EOF
+Expected output:
+
+Matched: 3
+Discrepancies: 1
+Portal only: 0
+Bank only: 1
+Step 3: Test Edge Cases
+Create a test with additional scenarios:
+
+cat > test_edge_cases.py << 'EOF'
+from transaction_parser import TransactionParser
+from reconciliation_engine import ReconciliationEngine
+
+# Test with empty files
+parser = TransactionParser()
+
+# Create empty test file
+with open('empty.csv', 'w') as f:
+    f.write('transaction_id,date,amount,customer_id,status,payment_method\n')
+
+try:
+    df = parser.load_portal_transactions('empty.csv')
+    print(f"Empty file handling: {'PASS' if len(df) == 0 else 'FAIL'}")
+except Exception as e:
+    print(f"Empty file handling: FAIL - {e}")
+EOF
+
+python3 test_edge_cases.py
+Troubleshooting Tips
+Issue: Module import errors
+
+Ensure all Python files are in the same directory
+Check file names match import statements exactly
+Issue: Pandas not found
+
+Reinstall: pip3 install --user pandas tabulate
+Verify: python3 -c "import pandas; print(pandas.__version__)"
+Issue: Amount comparison fails
+
+Use round() for floating-point comparisons
+Consider tolerance levels: abs(a - b) < 0.01
+Issue: Empty DataFrames
+
+Verify CSV files exist: ls -la *.csv
+Check CSV format and headers match code expectations
+Print DataFrame after loading: print(df.head())
+Expected Outcomes
+Upon completion, you should have:
+
+Functional parser that normalizes data from different sources
+Reconciliation engine that identifies:
+3 exact matches (TXN001, TXN002, TXN003, TXN006)
+1 amount discrepancy (TXN004: $1.00 difference)
+1 bank-only transaction (TXN007)
+Automated report showing all findings in readable format
+Reusable code applicable to real payment reconciliation scenarios
+Conclusion
+You have successfully built an automated payment reconciliation system that:
+
+Parses transaction data from multiple sources with different formats
+Implements matching algorithms to identify exact matches and discrepancies
+Detects unmatched transactions requiring investigation
+Generates professional reports for audit purposes
+This system demonstrates core concepts used in financial technology:
+
+Data normalization across disparate systems
+Automated discrepancy detection
+Audit trail generation
+Error handling for financial data
+Real-world applications:
+
+Daily payment gateway reconciliation
+Month-end financial closing processes
+Fraud detection through pattern analysis
+Compliance reporting for financial audits
+The skills practiced here scale to enterprise reconciliation systems processing millions of transactions daily.
+
