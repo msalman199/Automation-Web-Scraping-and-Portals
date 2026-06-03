@@ -1,0 +1,356 @@
+Anti-Bot Scraping Implementation
+Prerequisites
+Basic Python programming knowledge
+Understanding of HTTP requests and responses
+Familiarity with HTML structure and CSS selectors
+Basic command-line navigation in Linux
+Understanding of web scraping fundamentals
+Learning Objectives
+By completing this lab, you will:
+
+Implement user agent rotation to avoid bot detection
+Handle CAPTCHA challenges in web scraping scenarios
+Build resilient scrapers that mimic human browsing behavior
+Apply rate limiting and request delays strategically
+Environment Setup
+Step 1: Update System and Install Python Dependencies
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv
+Step 2: Create Project Directory and Virtual Environment
+mkdir ~/anti-bot-scraper
+cd ~/anti-bot-scraper
+python3 -m venv venv
+source venv/bin/activate
+Step 3: Install Required Libraries
+pip install requests beautifulsoup4 fake-useragent selenium
+Step 4: Install Chromium and ChromeDriver (for CAPTCHA simulation)
+sudo apt install -y chromium-browser chromium-chromedriver
+Task 1: Implement User Agent Rotation
+User agents identify the browser and operating system to web servers. Rotating them helps avoid detection as a bot.
+
+Step 1: Create the Base Scraper Structure
+Create a file named scraper.py:
+
+import requests
+from fake_useragent import UserAgent
+from bs4 import BeautifulSoup
+import time
+import random
+
+class AntiDetectionScraper:
+    """
+    A web scraper with anti-bot detection capabilities.
+    """
+    
+    def __init__(self):
+        self.ua = UserAgent()
+        self.session = requests.Session()
+        
+    def get_random_headers(self):
+        """
+        Generate random headers with rotating user agents.
+        
+        Returns:
+            dict: Headers dictionary with randomized user agent
+        """
+        # TODO: Return a dictionary with 'User-Agent' key
+        # Use self.ua.random to get a random user agent
+        # Add additional headers like 'Accept', 'Accept-Language'
+        pass
+    
+    def fetch_with_retry(self, url, max_retries=3):
+        """
+        Fetch URL with retry logic and exponential backoff.
+        
+        Args:
+            url: Target URL to scrape
+            max_retries: Maximum number of retry attempts
+            
+        Returns:
+            Response object or None if all retries fail
+        """
+        # TODO: Implement retry logic with exponential backoff
+        # Use self.get_random_headers() for each request
+        # Add random delay between retries (1-3 seconds)
+        # Return response if successful, None otherwise
+        pass
+    
+    def scrape_page(self, url):
+        """
+        Scrape a webpage and extract content.
+        
+        Args:
+            url: Target URL to scrape
+            
+        Returns:
+            dict: Extracted data from the page
+        """
+        # TODO: Use fetch_with_retry to get the page
+        # Parse HTML with BeautifulSoup
+        # Extract relevant data (title, paragraphs, etc.)
+        # Return structured data as dictionary
+        pass
+Step 2: Implement the User Agent Rotation Logic
+Complete the get_random_headers() method:
+
+def get_random_headers(self):
+    """Generate random headers with rotating user agents."""
+    headers = {
+        'User-Agent': self.ua.random,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+    }
+    return headers
+Step 3: Complete the Retry Mechanism
+Implement fetch_with_retry():
+
+Hints:
+
+Use a for loop for retry attempts
+Implement exponential backoff: time.sleep(2 ** attempt + random.uniform(0, 1))
+Catch requests.exceptions.RequestException
+Return response only if response.status_code == 200
+Step 4: Test User Agent Rotation
+Create test_rotation.py:
+
+from scraper import AntiDetectionScraper
+
+def test_user_agents():
+    """Test that user agents are rotating."""
+    scraper = AntiDetectionScraper()
+    
+    # TODO: Generate 5 different headers
+    # Print the User-Agent from each
+    # Verify they are different
+    pass
+
+if __name__ == "__main__":
+    test_user_agents()
+Run the test:
+
+python test_rotation.py
+Expected Output: Five different user agent strings should be displayed.
+
+Task 2: Handle CAPTCHA Simulation
+Real CAPTCHA solving requires paid services. We'll simulate CAPTCHA detection and implement handling strategies.
+
+Step 1: Create a Mock CAPTCHA Server
+Create mock_server.py:
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import random
+
+class CAPTCHAHandler(BaseHTTPRequestHandler):
+    """
+    Mock server that randomly presents CAPTCHA challenges.
+    """
+    
+    def do_GET(self):
+        """Handle GET requests with random CAPTCHA challenges."""
+        # TODO: Implement logic that:
+        # - 30% of requests return CAPTCHA page (status 403)
+        # - 70% return normal content (status 200)
+        # - CAPTCHA page should contain text "CAPTCHA detected"
+        # - Normal page should contain "Welcome! Content here."
+        pass
+    
+    def log_message(self, format, *args):
+        """Suppress default logging."""
+        pass
+
+def run_server(port=8080):
+    """Start the mock server."""
+    # TODO: Create HTTPServer instance
+    # Print server start message
+    # Start serving requests
+    pass
+
+if __name__ == "__main__":
+    run_server()
+Step 2: Implement CAPTCHA Detection
+Add to scraper.py:
+
+def detect_captcha(self, response):
+    """
+    Detect if response contains CAPTCHA challenge.
+    
+    Args:
+        response: HTTP response object
+        
+    Returns:
+        bool: True if CAPTCHA detected, False otherwise
+    """
+    # TODO: Check for common CAPTCHA indicators:
+    # - Status code 403
+    # - Keywords in response text: "captcha", "challenge", "verify"
+    # - Specific headers or cookies
+    pass
+
+def handle_captcha(self, url):
+    """
+    Handle CAPTCHA challenge with fallback strategies.
+    
+    Args:
+        url: URL that triggered CAPTCHA
+        
+    Returns:
+        Response object after handling CAPTCHA
+    """
+    # TODO: Implement CAPTCHA handling strategies:
+    # 1. Wait longer (simulate human delay: 10-15 seconds)
+    # 2. Change user agent
+    # 3. Retry with different headers
+    # 4. Log CAPTCHA encounter for monitoring
+    pass
+Step 3: Integrate CAPTCHA Handling into Scraper
+Modify the scrape_page() method to include CAPTCHA detection:
+
+def scrape_page(self, url):
+    """Scrape a webpage with CAPTCHA handling."""
+    response = self.fetch_with_retry(url)
+    
+    if response is None:
+        return {"error": "Failed to fetch page"}
+    
+    # TODO: Check if CAPTCHA detected using detect_captcha()
+    # If CAPTCHA found, call handle_captcha()
+    # Parse and return data only if no CAPTCHA or after handling
+    pass
+Step 4: Create Integration Test
+Create test_captcha.py:
+
+from scraper import AntiDetectionScraper
+import time
+
+def test_captcha_handling():
+    """
+    Test scraper against mock server with CAPTCHA challenges.
+    """
+    scraper = AntiDetectionScraper()
+    url = "http://localhost:8080"
+    
+    # TODO: Make 10 requests to the mock server
+    # Count successful vs CAPTCHA responses
+    # Print statistics
+    # Verify scraper handles both cases gracefully
+    pass
+
+if __name__ == "__main__":
+    print("Make sure mock_server.py is running on port 8080")
+    time.sleep(2)
+    test_captcha_handling()
+Step 5: Run Complete Test
+Terminal 1 - Start mock server:
+
+python mock_server.py
+Terminal 2 - Run test:
+
+python test_captcha.py
+Verification
+Verify User Agent Rotation
+python -c "
+from scraper import AntiDetectionScraper
+scraper = AntiDetectionScraper()
+agents = [scraper.get_random_headers()['User-Agent'] for _ in range(5)]
+print('Unique agents:', len(set(agents)))
+print('Test PASSED' if len(set(agents)) >= 3 else 'Test FAILED')
+"
+Expected: At least 3 unique user agents out of 5.
+
+Verify CAPTCHA Detection
+# With mock server running
+python -c "
+from scraper import AntiDetectionScraper
+import requests
+
+scraper = AntiDetectionScraper()
+response = requests.get('http://localhost:8080')
+has_detection = scraper.detect_captcha(response)
+print('CAPTCHA detection working:', has_detection is not None)
+"
+Complete Integration Test
+Create final_test.py:
+
+from scraper import AntiDetectionScraper
+import time
+
+def comprehensive_test():
+    """Run comprehensive scraper test."""
+    scraper = AntiDetectionScraper()
+    
+    print("Testing against httpbin.org...")
+    
+    # Test 1: User agent rotation
+    print("\n1. User Agent Rotation Test")
+    for i in range(3):
+        response = scraper.fetch_with_retry("http://httpbin.org/user-agent")
+        if response:
+            print(f"   Request {i+1}: Success")
+        time.sleep(1)
+    
+    # Test 2: Headers verification
+    print("\n2. Headers Verification Test")
+    response = scraper.fetch_with_retry("http://httpbin.org/headers")
+    if response and response.status_code == 200:
+        print("   Headers sent successfully")
+    
+    print("\n3. Rate Limiting Test")
+    start = time.time()
+    for i in range(3):
+        scraper.fetch_with_retry("http://httpbin.org/delay/1")
+    elapsed = time.time() - start
+    print(f"   Completed 3 requests in {elapsed:.2f} seconds")
+    
+    print("\nAll tests completed!")
+
+if __name__ == "__main__":
+    comprehensive_test()
+Run:
+
+python final_test.py
+Troubleshooting
+Issue: "ModuleNotFoundError: No module named 'fake_useragent'"
+Solution:
+
+source venv/bin/activate
+pip install fake-useragent
+Issue: Mock server not responding
+Solution:
+
+Check if port 8080 is already in use: sudo netstat -tlnp | grep 8080
+Kill existing process: sudo kill -9 <PID>
+Restart mock server
+Issue: All requests failing with connection errors
+Solution:
+
+Verify internet connectivity: ping -c 3 google.com
+Check if firewall is blocking: sudo ufw status
+Try alternative test URL: http://httpbin.org/get
+Issue: User agents not rotating
+Solution:
+
+Clear fake-useragent cache: rm -rf ~/.fake_useragent/
+Reinstall: pip install --upgrade fake-useragent
+Conclusion
+You have successfully implemented an anti-bot scraping system with:
+
+User Agent Rotation: Dynamically changing browser identities to avoid fingerprinting
+CAPTCHA Detection: Identifying when websites challenge your scraper
+Retry Logic: Implementing exponential backoff for resilient scraping
+Request Headers: Mimicking legitimate browser behavior
+Real-World Applications:
+
+Price monitoring systems that avoid detection
+Data aggregation services requiring stealth
+Market research tools scraping competitor data
+SEO tools analyzing multiple websites
+Next Steps:
+
+Integrate proxy rotation for IP diversity
+Implement cookie management for session persistence
+Add JavaScript rendering with Selenium for dynamic sites
+Explore commercial CAPTCHA solving services (2Captcha, Anti-Captcha)
+Key Takeaway: Ethical scraping respects robots.txt, implements rate limiting, and only collects publicly available data. Always review a website's terms of service before scraping.
