@@ -69,3 +69,36 @@ def get_random_headers(self):
         'Upgrade-Insecure-Requests': '1'
     }
     return headers
+def detect_captcha(self, response):
+    """
+    Detect if response contains CAPTCHA challenge.
+    
+    Args:
+        response: HTTP response object
+        
+    Returns:
+        bool: True if CAPTCHA detected, False otherwise
+    """
+    # TODO: Check for common CAPTCHA indicators:
+    # - Status code 403
+    # - Keywords in response text: "captcha", "challenge", "verify"
+    # - Specific headers or cookies
+    pass
+
+def handle_captcha(self, url):
+    """
+    Handle CAPTCHA challenge with fallback strategies.
+    
+    Args:
+        url: URL that triggered CAPTCHA
+        
+    Returns:
+        Response object after handling CAPTCHA
+    """
+    # TODO: Implement CAPTCHA handling strategies:
+    # 1. Wait longer (simulate human delay: 10-15 seconds)
+    # 2. Change user agent
+    # 3. Retry with different headers
+    # 4. Log CAPTCHA encounter for monitoring
+    pass
+
