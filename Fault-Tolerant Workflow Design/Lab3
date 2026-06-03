@@ -1,0 +1,419 @@
+Fault-Tolerant Workflow Design
+Prerequisites
+Basic Linux command-line proficiency
+Understanding of Python programming fundamentals
+Familiarity with file operations and exception handling
+Basic knowledge of logging concepts
+Learning Objectives
+By completing this lab, you will:
+
+Implement retry logic for resilient automation workflows
+Design error handling strategies for common failure scenarios
+Create comprehensive logging systems for workflow monitoring
+Build fault-tolerant automation pipelines
+Environment Setup
+Step 1: Start Your Lab Environment
+Click the Start Lab button to provision your Linux machine.
+
+Step 2: Install Required Tools
+# Update package manager
+sudo apt update
+
+# Install Python 3 and pip
+sudo apt install -y python3 python3-pip python3-venv
+
+# Create project directory
+mkdir -p ~/fault-tolerant-workflow
+cd ~/fault-tolerant-workflow
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install required packages
+pip install requests tenacity
+Step 3: Verify Installation
+python3 --version
+pip list | grep -E "requests|tenacity"
+Task 1: Build a Retry Mechanism
+Overview
+Create a workflow system that automatically retries failed operations with exponential backoff.
+
+Step 1: Create the Base Workflow Module
+Create workflow_engine.py:
+
+import time
+import logging
+from typing import Callable, Any, Optional
+from functools import wraps
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('workflow.log'),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+
+class RetryConfig:
+    """Configuration for retry behavior"""
+    def __init__(self, max_attempts: int = 3, base_delay: float = 1.0, 
+                 max_delay: float = 60.0, exponential_base: float = 2.0):
+        self.max_attempts = max_attempts
+        self.base_delay = base_delay
+        self.max_delay = max_delay
+        self.exponential_base = exponential_base
+
+
+def retry_with_backoff(config: RetryConfig, 
+                       exceptions: tuple = (Exception,)):
+    """
+    Decorator that implements retry logic with exponential backoff.
+    
+    Args:
+        config: RetryConfig object with retry parameters
+        exceptions: Tuple of exception types to catch and retry
+    
+    Returns:
+        Decorated function with retry capability
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            attempt = 0
+            while attempt < config.max_attempts:
+                try:
+                    # TODO: Implement the retry logic
+                    # 1. Increment attempt counter
+                    # 2. Log the attempt number
+                    # 3. Call the function and return result if successful
+                    # 4. Calculate delay using exponential backoff formula
+                    # 5. Sleep before next retry
+                    pass
+                except exceptions as e:
+                    # TODO: Handle exceptions
+                    # 1. Log the error with details
+                    # 2. Check if max attempts reached
+                    # 3. If max reached, log final failure and re-raise
+                    # 4. Otherwise, continue to next iteration
+                    pass
+        return wrapper
+    return decorator
+
+
+class WorkflowStep:
+    """Represents a single step in a workflow"""
+    
+    def __init__(self, name: str, function: Callable, 
+                 retry_config: Optional[RetryConfig] = None):
+        self.name = name
+        self.function = function
+        self.retry_config = retry_config or RetryConfig()
+        self.status = "pending"
+        self.result = None
+        self.error = None
+    
+    def execute(self, *args, **kwargs) -> Any:
+        """
+        Execute the workflow step with retry logic.
+        
+        Returns:
+            Result of the function execution
+        """
+        # TODO: Implement step execution
+        # 1. Log step start
+        # 2. Apply retry decorator to function
+        # 3. Execute function with provided arguments
+        # 4. Update status to "completed" and store result
+        # 5. Handle any final failures and update status to "failed"
+        # 6. Return result or raise exception
+        pass
+Step 2: Implement the Retry Logic
+Complete the retry_with_backoff decorator and WorkflowStep.execute() method:
+
+Hints for retry_with_backoff:
+
+Use min(config.base_delay * (config.exponential_base ** attempt), config.max_delay) for backoff calculation
+Log each attempt with logger.info(f"Attempt {attempt + 1}/{config.max_attempts} for {func.__name__}")
+Use time.sleep(delay) between retries
+Hints for WorkflowStep.execute:
+
+Wrap the function with the retry decorator before calling
+Use try-except to catch final failures
+Update self.status, self.result, and self.error appropriately
+Step 3: Create Test Functions
+Create test_operations.py:
+
+import random
+import requests
+import time
+
+class SimulatedFailure(Exception):
+    """Custom exception for simulated failures"""
+    pass
+
+
+def unreliable_api_call(failure_rate: float = 0.5) -> dict:
+    """
+    Simulates an unreliable API call that fails randomly.
+    
+    Args:
+        failure_rate: Probability of failure (0.0 to 1.0)
+    
+    Returns:
+        Dictionary with API response data
+    """
+    # TODO: Implement simulated API call
+    # 1. Generate random number to determine if call fails
+    # 2. If fails, raise SimulatedFailure with message
+    # 3. If succeeds, return success response dictionary
+    pass
+
+
+def flaky_file_operation(filepath: str) -> str:
+    """
+    Simulates a file operation that occasionally fails.
+    
+    Args:
+        filepath: Path to file to process
+    
+    Returns:
+        Success message string
+    """
+    # TODO: Implement flaky file operation
+    # 1. Randomly fail 40% of the time with IOError
+    # 2. Otherwise, attempt to read/write file
+    # 3. Return success message
+    pass
+
+
+def database_transaction(data: dict) -> bool:
+    """
+    Simulates a database transaction with potential timeout.
+    
+    Args:
+        data: Data to write to database
+    
+    Returns:
+        Boolean indicating success
+    """
+    # TODO: Implement simulated database transaction
+    # 1. Add random delay (0.1 to 2 seconds)
+    # 2. Fail randomly 30% of the time with TimeoutError
+    # 3. Return True on success
+    pass
+Task 2: Implement Comprehensive Error Handling and Logging
+Step 1: Create the Workflow Orchestrator
+Create workflow_orchestrator.py:
+
+import logging
+from typing import List, Dict, Any
+from workflow_engine import WorkflowStep, RetryConfig
+
+logger = logging.getLogger(__name__)
+
+
+class WorkflowOrchestrator:
+    """Orchestrates execution of multiple workflow steps"""
+    
+    def __init__(self, name: str):
+        self.name = name
+        self.steps: List[WorkflowStep] = []
+        self.execution_log: List[Dict[str, Any]] = []
+    
+    def add_step(self, step: WorkflowStep) -> None:
+        """Add a step to the workflow"""
+        self.steps.append(step)
+        logger.info(f"Added step '{step.name}' to workflow '{self.name}'")
+    
+    def execute(self, continue_on_error: bool = False) -> Dict[str, Any]:
+        """
+        Execute all workflow steps in sequence.
+        
+        Args:
+            continue_on_error: Whether to continue if a step fails
+        
+        Returns:
+            Dictionary containing execution summary
+        """
+        # TODO: Implement workflow execution
+        # 1. Log workflow start
+        # 2. Initialize results dictionary
+        # 3. Iterate through steps and execute each
+        # 4. Log each step's outcome
+        # 5. Handle failures based on continue_on_error flag
+        # 6. Generate and return execution summary
+        pass
+    
+    def get_execution_summary(self) -> Dict[str, Any]:
+        """
+        Generate summary of workflow execution.
+        
+        Returns:
+            Dictionary with execution statistics
+        """
+        # TODO: Implement summary generation
+        # 1. Count completed, failed, and pending steps
+        # 2. Calculate success rate
+        # 3. Compile list of failed steps with errors
+        # 4. Return comprehensive summary dictionary
+        pass
+    
+    def save_execution_log(self, filepath: str) -> None:
+        """
+        Save execution log to file.
+        
+        Args:
+            filepath: Path to save log file
+        """
+        # TODO: Implement log saving
+        # 1. Open file for writing
+        # 2. Write execution summary in readable format
+        # 3. Include details for each step
+        # 4. Handle file writing errors
+        pass
+Step 2: Create a Complete Workflow Example
+Create main_workflow.py:
+
+#!/usr/bin/env python3
+
+from workflow_engine import WorkflowStep, RetryConfig
+from workflow_orchestrator import WorkflowOrchestrator
+from test_operations import (
+    unreliable_api_call, 
+    flaky_file_operation, 
+    database_transaction
+)
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def main():
+    """Main workflow execution"""
+    
+    # TODO: Create workflow orchestrator instance
+    
+    # TODO: Define retry configurations for different scenarios
+    # - aggressive_retry: 5 attempts, 0.5s base delay
+    # - standard_retry: 3 attempts, 1s base delay
+    # - conservative_retry: 2 attempts, 2s base delay
+    
+    # TODO: Create workflow steps
+    # Step 1: API call with aggressive retry
+    # Step 2: File operation with standard retry
+    # Step 3: Database transaction with conservative retry
+    
+    # TODO: Add steps to orchestrator
+    
+    # TODO: Execute workflow with continue_on_error=True
+    
+    # TODO: Print execution summary
+    
+    # TODO: Save execution log to file
+    
+    pass
+
+
+if __name__ == "__main__":
+    main()
+Step 3: Test the Workflow
+# Make the script executable
+chmod +x main_workflow.py
+
+# Run the workflow
+python3 main_workflow.py
+
+# View the logs
+cat workflow.log
+
+# Check execution summary
+cat workflow_execution.log
+Verification
+Step 1: Verify Retry Behavior
+Create verify_retry.py:
+
+#!/usr/bin/env python3
+
+from workflow_engine import WorkflowStep, RetryConfig
+from test_operations import unreliable_api_call
+
+# Test with high failure rate
+config = RetryConfig(max_attempts=5, base_delay=0.5)
+step = WorkflowStep("test_retry", unreliable_api_call, config)
+
+try:
+    result = step.execute(failure_rate=0.7)
+    print(f"Success after retries: {result}")
+except Exception as e:
+    print(f"Failed after all retries: {e}")
+
+print(f"Step status: {step.status}")
+Run verification:
+
+python3 verify_retry.py
+Expected Output:
+
+Multiple retry attempts logged
+Exponential backoff delays visible in timestamps
+Either success message or final failure after max attempts
+Step 2: Verify Logging
+# Check log file exists and contains entries
+test -f workflow.log && echo "Log file created" || echo "Log file missing"
+
+# Count log entries
+grep -c "Attempt" workflow.log
+
+# View error logs
+grep "ERROR" workflow.log
+Step 3: Verify Workflow Orchestration
+Check that:
+
+All steps executed in sequence
+Failed steps were retried according to configuration
+Execution summary contains accurate statistics
+Log files contain detailed execution information
+# Verify execution log
+test -f workflow_execution.log && cat workflow_execution.log
+Expected Outcomes
+After completing this lab, you should have:
+
+Retry Mechanism: A decorator-based retry system with exponential backoff
+Error Handling: Comprehensive exception handling for different failure types
+Logging System: Multi-level logging to both file and console
+Workflow Orchestrator: A system to manage multiple dependent steps
+Execution Reports: Detailed logs and summaries of workflow execution
+Troubleshooting Tips
+Issue: Retries happen too quickly
+
+Solution: Increase base_delay in RetryConfig
+Issue: Workflow stops on first failure
+
+Solution: Set continue_on_error=True in orchestrator.execute()
+Issue: Logs not appearing
+
+Solution: Check logging configuration and file permissions
+Issue: Import errors
+
+Solution: Ensure all files are in the same directory and virtual environment is activated
+Conclusion
+You have successfully built a fault-tolerant workflow system with:
+
+Automatic retry logic with exponential backoff
+Comprehensive error handling for various failure scenarios
+Detailed logging for monitoring and debugging
+Workflow orchestration for managing complex processes
+These patterns are essential for building reliable automation systems in production environments where transient failures are common. The retry and logging mechanisms you've implemented form the foundation of resilient distributed systems.
+
+Cleanup
+# Deactivate virtual environment
+deactivate
+
+# Optional: Remove lab files
+cd ~
+rm -rf fault-tolerant-workflow
