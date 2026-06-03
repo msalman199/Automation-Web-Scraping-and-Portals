@@ -1,0 +1,7 @@
+transaction_id,date,amount,customer_id,status,payment_method
+TXN001,2024-01-15,150.00,CUST101,completed,credit_card
+TXN002,2024-01-15,75.50,CUST102,completed,paypal
+TXN003,2024-01-16,200.00,CUST103,completed,debit_card
+TXN004,2024-01-16,89.99,CUST104,completed,credit_card
+TXN005,2024-01-17,125.00,CUST105,failed,paypal
+TXN006,2024-01-17,300.00,CUST106,completed,credit_card
