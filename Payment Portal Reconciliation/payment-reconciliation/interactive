@@ -1,0 +1,16 @@
+python3 << 'EOF'
+from transaction_parser import TransactionParser
+from reconciliation_engine import ReconciliationEngine
+
+parser = TransactionParser()
+portal = parser.load_portal_transactions('portal_transactions.csv')
+bank = parser.load_bank_transactions('bank_transactions.csv')
+
+engine = ReconciliationEngine(portal, bank)
+results = engine.reconcile()
+
+print(f"Matched: {len(results['matched'])}")
+print(f"Discrepancies: {len(results['discrepancies'])}")
+print(f"Portal only: {len(results['unmatched_portal'])}")
+print(f"Bank only: {len(results['unmatched_bank'])}")
+EOF
